@@ -3,35 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F2F4F7">
+<meta name="theme-color" content="#0B0F15">
 <title>Mekitoji Hub</title>
 <style>
 :root {
-  --bg: #F2F4F7;
-  --surface: #FFFFFF;
-  --fg: #141A22;
-  --muted: #5B6675;
-  --line: #D9DEE5;
-  --accent: #2F5BD8;
-  --accent-fg: #FFFFFF;
-  --shadow: 0 1px 2px rgba(20,26,34,.08), 0 4px 14px rgba(20,26,34,.06);
+  --bg: #0B0F15;
+  --surface: #171E29;
+  --fg: #E8EDF5;
+  --muted: #8896AB;
+  --line: #273140;
+  --accent: #7DA2FF;
   --f: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0F131A;
-    --surface: #19202B;
-    --fg: #EAEFF6;
-    --muted: #93A0B2;
-    --line: #2A3442;
-    --accent: #7DA2FF;
-    --accent-fg: #0B1020;
-    --shadow: none;
-    color-scheme: dark;
-  }
+  color-scheme: dark;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { color-scheme: light dark; }
+html { background: #0B0F15; color-scheme: dark; }
 body {
   margin: 0;
   min-height: 100vh;
@@ -52,7 +38,6 @@ a.big {
   min-height: 96px; padding: 18px 20px;
   background: var(--surface); color: var(--fg);
   border: 1px solid var(--line); border-radius: 18px;
-  box-shadow: var(--shadow);
   text-decoration: none; font-size: 22px; font-weight: 650;
 }
 a.big .ico { font-size: 34px; line-height: 1; width: 44px; text-align: center; flex: none; }
@@ -70,10 +55,10 @@ a.big:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 <main>
   <h1>Mekitoji Hub</h1>
   <nav>
-    <a class="big" href="acatist/"><span class="ico" aria-hidden="true">🙏</span><span class="txt">Acatiste</span><span class="go" aria-hidden="true">›</span></a>
-    <a class="big" href="dogfood/"><span class="ico" aria-hidden="true">🐶</span><span class="txt">Hrană câini</span><span class="go" aria-hidden="true">›</span></a>
-    <a class="big" href="credit/"><span class="ico" aria-hidden="true">💳</span><span class="txt">Rambursare credit</span><span class="go" aria-hidden="true">›</span></a>
-    <a class="big" href="mobrick/"><span class="ico" aria-hidden="true">🧱</span><span class="txt">Zile lucrate Mobrick</span><span class="go" aria-hidden="true">›</span></a>
+    <a class="big" href="acatist/index.html"><span class="ico" aria-hidden="true">🙏</span><span class="txt">Acatiste</span><span class="go" aria-hidden="true">›</span></a>
+    <a class="big" href="dogfood/index.html"><span class="ico" aria-hidden="true">🐶</span><span class="txt">Hrană câini</span><span class="go" aria-hidden="true">›</span></a>
+    <a class="big" href="credit/index.html"><span class="ico" aria-hidden="true">💳</span><span class="txt">Rambursare credit</span><span class="go" aria-hidden="true">›</span></a>
+    <a class="big" href="mobrick/index.html"><span class="ico" aria-hidden="true">🧱</span><span class="txt">Zile lucrate Mobrick</span><span class="go" aria-hidden="true">›</span></a>
   </nav>
 </main>
 </body>
