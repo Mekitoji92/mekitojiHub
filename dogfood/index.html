@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculator hrană câini</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow working column (max 760px). Tabs on top, inputs, then a ledger-style table
+   with subtotal rows and a closing band for the cooked total. */
+:root {
+  --bg: #F3F6F4;
+  --surface: #FFFFFF;
+  --fg: #14201B;
+  --muted: #5A6B64;
+  --line: #D8E1DC;
+  --accent: #1C6A56;
+  --accent-fg: #FFFFFF;
+  --accent-soft: #DCEFE7;
+  --warn: #8A5700;
+  --warn-soft: #FBEFD0;
+  --bad: #A3362B;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1512;
+    --surface: #16201C;
+    --fg: #E5EEE9;
+    --muted: #94A69E;
+    --line: #28372F;
+    --accent: #5FC6A5;
+    --accent-fg: #07140E;
+    --accent-soft: #1B3A30;
+    --warn: #EAB85A;
+    --warn-soft: #3A2D12;
+    --bad: #F2897D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1512;
+  --surface: #16201C;
+  --fg: #E5EEE9;
+  --muted: #94A69E;
+  --line: #28372F;
+  --accent: #5FC6A5;
+  --accent-fg: #07140E;
+  --accent-soft: #1B3A30;
+  --warn: #EAB85A;
+  --warn-soft: #3A2D12;
+  --bad: #F2897D;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 30px; line-height: 1.1; }
+h2 { font-size: 19px; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 60ch; }
+.num { font-variant-numeric: tabular-nums; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--line); border-radius: 10px; }
+.tab {
+  font: inherit; font-weight: 600; color: var(--muted); background: transparent; border: 0;
+  border-radius: 7px; padding: 10px 8px; cursor: pointer; min-width: 0;
+}
+.tab[aria-selected="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.panel { display: flex; flex-direction: column; gap: 16px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.lead { color: var(--muted); margin: 0 0 12px; }
+
+label.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-weight: 500; }
+label.field small { color: var(--muted); font-weight: 400; }
+input[type="number"] {
+  font: inherit; font-variant-numeric: tabular-nums; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+input[type="number"]:focus { border-color: var(--accent); }
+.unit { position: relative; }
+.unit input { padding-right: 36px; }
+.unit::after { content: "g"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+
+.stepper { display: flex; gap: 8px; align-items: stretch; }
+.stepper input { text-align: center; font-size: 22px; font-weight: 600; max-width: 110px; }
+.btn {
+  font: inherit; font-weight: 600; color: var(--fg); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 14px; cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.sq { width: 44px; padding: 0; font-size: 20px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.chips .lbl { color: var(--muted); margin-right: 2px; }
+.chip { font: inherit; font-weight: 500; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 4px 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.chip.dflt { border-style: dashed; border-color: var(--accent); color: var(--accent); }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.days .chip { padding: 10px 0; text-align: center; font-weight: 600; font-size: 17px; border-radius: 10px; font-variant-numeric: tabular-nums; }
+
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; }
+.switch {
+  display: inline-flex; align-items: center; gap: 10px; font: inherit; font-weight: 600; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 8px; cursor: pointer;
+}
+.switch .trk { position: relative; width: 38px; height: 22px; border-radius: 999px; background: var(--line); flex: none; }
+.switch .trk::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.switch[aria-checked="true"] { border-color: var(--accent); }
+.switch[aria-checked="true"] .trk { background: var(--accent); }
+.switch[aria-checked="true"] .trk::after { left: 19px; background: var(--accent-fg); }
+@media (prefers-reduced-motion: no-preference) {
+  .switch .trk, .switch .trk::after { transition: background .15s, left .15s; }
+}
+
+.grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+
+.tblwrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; white-space: nowrap; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+td small, .kg { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+td .note { color: var(--muted); font-size: 12px; display: block; }
+tr.sub td { background: var(--accent-soft); font-weight: 600; }
+tr.tot td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--fg); }
+tr.cookrow td { background: var(--accent); color: var(--accent-fg); font-weight: 700; border-bottom: 0; }
+tr.cookrow td small { color: inherit; opacity: .85; }
+tr.cookrow td:first-child { border-radius: 8px 0 0 8px; }
+tr.cookrow td:last-child { border-radius: 0 8px 8px 0; }
+.pill { display: inline-block; font-size: 11px; font-weight: 600; background: var(--warn-soft); color: var(--warn); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 1px; white-space: nowrap; }
+.good { color: var(--accent); font-weight: 600; }
+.short { color: var(--bad); font-weight: 600; }
+
+.cooked {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px;
+  background: var(--accent); color: var(--accent-fg); border-radius: 10px; padding: 14px 16px; margin-top: 12px;
+}
+.cooked .t { font-weight: 600; }
+.cooked .v { font-family: var(--f-display); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cooked .d { flex-basis: 100%; font-size: 13px; opacity: .85; font-variant-numeric: tabular-nums; }
+
+.headline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.headline .big { font-family: var(--f-display); font-size: 44px; font-weight: 700; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.headline .what { font-size: 17px; font-weight: 600; }
+.why { color: var(--muted); margin: 8px 0 0; }
+.callout { border-radius: 8px; padding: 10px 12px; background: var(--warn-soft); color: var(--warn); margin-top: 12px; font-size: 14px; }
+.foot { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+.empty { color: var(--muted); margin: 0; }
+
+details.recipe summary { cursor: pointer; font-weight: 600; }
+details.recipe[open] summary { margin-bottom: 12px; }
+.rtable td { vertical-align: middle; }
+.rtable input { max-width: 110px; margin-left: auto; display: block; padding: 6px 8px; text-align: right; }
+
+@media (max-width: 480px) {
+  h1 { font-size: 26px; }
+  .headline .big { font-size: 38px; }
+  th, td { padding: 9px 5px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tab, .btn, .chip { transition: background .15s, border-color .15s, color .15s; }
+}
+html{color-scheme:light}
+body{margin:0}
+[hidden]{display:none!important}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <h1>Calculator hrană câini</h1>
+      <button class="switch" id="dbl" type="button" role="switch" aria-checked="false"><span class="trk"></span>X2 Doggos</button>
+    </div>
+    <p class="sub">Dieta gătită pe bază de porc. Cantitățile sunt crude, adică ce cumperi, nu ce rezultă după gătire.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Mod de calcul">
+    <button class="tab" role="tab" id="tab-portii" aria-controls="panel-portii" aria-selected="true" type="button">Câte porții vreau</button>
+    <button class="tab" role="tab" id="tab-am" aria-controls="panel-am" aria-selected="false" type="button">Ce am deja</button>
+  </div>
+
+  <section class="panel" id="panel-portii" role="tabpanel" aria-labelledby="tab-portii">
+    <div class="box">
+      <p class="lead">O porție este hrana pentru o zi. Alege una sau mai multe variante de zile și compară ce cumperi.</p>
+      <div class="days" id="days" role="group" aria-label="Număr de zile"></div>
+      <p class="foot" id="days-hint"></p>
+    </div>
+    <div class="box">
+      <h2 id="p-title">De cumpărat</h2>
+      <div id="out-portii"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-am" role="tabpanel" aria-labelledby="tab-am" hidden>
+    <div class="box">
+      <p class="lead">Scrie cât ai din oricare ingredient, în grame crude. Cele goale nu limitează calculul.</p>
+      <div class="grid4" id="have-grid"></div>
+      <div class="chips"><button class="btn" id="clear" type="button">Șterge tot</button></div>
+    </div>
+    <div class="box">
+      <div id="out-am"></div>
+    </div>
+  </section>
+
+  <details class="box recipe" id="recipe">
+    <summary>Rețeta unei porții</summary>
+    <p class="lead">Valorile din fișa dietei. Le poți schimba dacă medicul veterinar modifică rețeta.</p>
+    <div class="tblwrap">
+      <table class="rtable">
+        <thead><tr><th>Ingredient</th><th class="n">Crud (g)</th><th class="n">Gătit (g)</th></tr></thead>
+        <tbody id="recipe-body"></tbody>
+      </table>
+    </div>
+    <div class="chips"><button class="btn" id="reset" type="button">Revino la valorile din fișă</button></div>
+  </details>
+</div>
+
+<script>
+(function () {
+  var DEFAULTS = [
+    { id: 'pulpa',   name: 'Pulpă de porc',  note: 'fără piele',    raw: 60,  cooked: 55,  meat: true },
+    { id: 'cotlet',  name: 'Cotlet de porc', note: 'fără grăsime',  raw: 48,  cooked: 35,  meat: true },
+    { id: 'cartofi', name: 'Cartofi albi',   note: 'curățați de coajă', raw: 410, cooked: 410 },
+    { id: 'mazare',  name: 'Mazăre verde',   note: '',              raw: 50,  cooked: 50 }
+  ];
+  var KEY = 'calc-hrana-caini-v1';
+  var DEFAULT_DAYS = [1, 2, 5];
+  // days is not persisted: a fresh visit starts with nothing selected and falls back to DEFAULT_DAYS
+  var state = { tab: 'portii', days: [], double: false, have: { pulpa: '500', cotlet: '', cartofi: '', mazare: '' }, recipe: {} };
+  DEFAULTS.forEach(function (d) { state.recipe[d.id] = { raw: d.raw, cooked: d.cooked }; });
+
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved) {
+      if (saved.tab === 'portii' || saved.tab === 'am') state.tab = saved.tab;
+      if (saved.double === true) state.double = true;
+      if (saved.have) DEFAULTS.forEach(function (d) { if (typeof saved.have[d.id] === 'string') state.have[d.id] = saved.have[d.id]; });
+      if (saved.recipe) DEFAULTS.forEach(function (d) {
+        var r = saved.recipe[d.id];
+        if (r && r.raw > 0 && r.cooked >= 0) state.recipe[d.id] = { raw: r.raw, cooked: r.cooked };
+      });
+    }
+  } catch (e) {}
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify({ tab: state.tab, double: state.double, have: state.have, recipe: state.recipe })); } catch (e) {}
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function f(n) {
+    var r = Math.round(n * 10) / 10, p = String(r).split('.');
+    return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (p[1] ? ',' + p[1] : '');
+  }
+  function kg(n) {
+    if (n < 1000) return '';
+    var s = (n / 1000).toFixed(2).replace('.', ',').replace(/,?0+$/, '');
+    return '<small>' + s + ' kg</small>';
+  }
+  function amt(n) { return f(n) + ' g' + kg(n); }
+  function plural(n) { return n === 1 ? 'porție' : 'porții'; }
+  function num(v) {
+    if (v === '' || v == null) return null;
+    var n = parseFloat(String(v).replace(',', '.'));
+    return isFinite(n) && n >= 0 ? n : null;
+  }
+  function mult() { return state.double ? 2 : 1; }
+  function raw(d) { return state.recipe[d.id].raw * mult(); }
+  function cooked(d) { return state.recipe[d.id].cooked * mult(); }
+  function dayLbl(n) { return n + (n === 1 ? ' zi' : ' zile'); }
+
+  /* ---------- static inputs ---------- */
+  var haveGrid = $('have-grid');
+  DEFAULTS.forEach(function (d) {
+    var l = document.createElement('label');
+    l.className = 'field';
+    l.innerHTML = '<span>' + d.name + '</span><span class="unit"><input type="number" min="0" step="any" inputmode="decimal" id="have-' + d.id + '" placeholder="0"></span><small id="per-' + d.id + '"></small>';
+    haveGrid.appendChild(l);
+    var inp = l.querySelector('input');
+    inp.value = state.have[d.id];
+    inp.addEventListener('input', function () { state.have[d.id] = inp.value; persist(); renderAm(); });
+  });
+
+  var rb = $('recipe-body');
+  DEFAULTS.forEach(function (d) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + d.name + '</td>' +
+      '<td><input type="number" min="1" step="any" id="r-raw-' + d.id + '" aria-label="' + d.name + ', grame crude"></td>' +
+      '<td><input type="number" min="0" step="any" id="r-cooked-' + d.id + '" aria-label="' + d.name + ', grame gătite"></td>';
+    rb.appendChild(tr);
+    ['raw', 'cooked'].forEach(function (k) {
+      var inp = tr.querySelector('#r-' + k + '-' + d.id);
+      inp.value = state.recipe[d.id][k];
+      inp.addEventListener('input', function () {
+        var v = parseFloat(inp.value);
+        if (!isFinite(v) || v < (k === 'raw' ? 0.1 : 0)) return;
+        state.recipe[d.id][k] = v; persist(); renderAll();
+      });
+    });
+  });
+  $('reset').addEventListener('click', function () {
+    DEFAULTS.forEach(function (d) {
+      state.recipe[d.id] = { raw: d.raw, cooked: d.cooked };
+      $('r-raw-' + d.id).value = d.raw; $('r-cooked-' + d.id).value = d.cooked;
+    });
+    persist(); renderAll();
+  });
+
+  /* ---------- tab 1 ---------- */
+  var daysBox = $('days');
+  for (var i = 1; i <= 7; i++) (function (n) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.n = n; b.textContent = n;
+    b.setAttribute('aria-label', dayLbl(n));
+    b.addEventListener('click', function () {
+      var at = state.days.indexOf(n);
+      if (at === -1) state.days.push(n); else state.days.splice(at, 1);
+      renderPortii();
+    });
+    daysBox.appendChild(b);
+  })(i);
+
+  $('dbl').addEventListener('click', function () {
+    state.double = !state.double; persist(); renderAll();
+  });
+
+  function activeDays() {
+    return (state.days.length ? state.days : DEFAULT_DAYS).slice().sort(function (a, b) { return a - b; });
+  }
+
+  function ledger(n, rowFn) {
+    // rowFn(d, need) -> extra cells html; shared structure for both tabs
+    var meat = 0, all = 0, rows = '';
+    DEFAULTS.forEach(function (d) {
+      var need = raw(d) * n;
+      all += need;
+      if (d.meat) meat += need;
+      rows += rowFn(d, need);
+      if (d.id === 'cotlet') rows += rowFn({ id: '_meat', name: 'Total carne crudă', sub: true }, meat);
+    });
+    rows += rowFn({ id: '_all', name: 'Total crud', tot: true }, all);
+    return rows;
+  }
+  function cookedBand(n) {
+    var per = 0, parts = [];
+    DEFAULTS.forEach(function (d) { per += cooked(d); parts.push(f(cooked(d))); });
+    return '<div class="cooked"><span class="t">Hrană după gătire (total)</span><span class="v">' + f(per * n) + ' g</span>' +
+      '<span class="d">' + parts.join(' + ') + ' = ' + f(per) + ' g pe porție × ' + n + ' ' + plural(n) + '</span></div>';
+  }
+  var FOOT = '<p class="foot">Cartofii sunt calculați după curățare. Cu coajă, ia cu 10–20% mai mult.</p>';
+
+  function renderPortii() {
+    var picked = state.days.length > 0, days = activeDays();
+    Array.prototype.forEach.call(daysBox.querySelectorAll('.chip'), function (c) {
+      var n = parseInt(c.dataset.n, 10), on = state.days.indexOf(n) !== -1;
+      c.setAttribute('aria-pressed', String(on));
+      c.classList.toggle('dflt', !picked && DEFAULT_DAYS.indexOf(n) !== -1);
+    });
+    $('days-hint').textContent = picked
+      ? 'Selectat: ' + days.map(dayLbl).join(', ') + '. Apasă din nou o zi ca s-o scoți.'
+      : 'Nimic selectat, deci vezi implicit ' + days.map(dayLbl).join(', ') + '. Alege zilele dorite.';
+
+    var head = '<tr><th>Ingredient</th>' + days.map(function (n) { return '<th class="n">' + dayLbl(n) + '</th>'; }).join('') + '</tr>';
+    var cells = function (perDay) { return days.map(function (n) { return '<td class="n">' + amt(perDay * n) + '</td>'; }).join(''); };
+    var meat = 0, all = 0, cook = 0, rows = '';
+    DEFAULTS.forEach(function (d) {
+      all += raw(d); cook += cooked(d);
+      if (d.meat) meat += raw(d);
+      var note = d.note ? '<span class="note">' + d.note + '</span>' : '';
+      rows += '<tr><td>' + d.name + note + '</td>' + cells(raw(d)) + '</tr>';
+      if (d.id === 'cotlet') rows += '<tr class="sub"><td>Total carne crudă</td>' + cells(meat) + '</tr>';
+    });
+    rows += '<tr class="tot"><td>Total crud</td>' + cells(all) + '</tr>';
+    rows += '<tr class="cookrow"><td>Hrană după gătire (total)</td>' + cells(cook) + '</tr>';
+
+    var warn = days[days.length - 1] > 2 ? '<div class="callout">Mâncarea gătită se păstrează la frigider maxim 48 de ore. Pentru mai mult de 2 zile gătește pe etape.</div>' : '';
+    var dbl = state.double ? '<p class="foot">X2 Doggos activ: toate cantitățile sunt dublate (' + f(cook) + ' g gătit pe zi, ' + f(all) + ' g crud pe zi).</p>' : '';
+    $('p-title').textContent = 'De cumpărat' + (state.double ? ' (X2 Doggos)' : '');
+    $('out-portii').innerHTML = '<div class="tblwrap"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>' + dbl + warn + FOOT;
+  }
+
+  /* ---------- tab 2 ---------- */
+  $('clear').addEventListener('click', function () {
+    DEFAULTS.forEach(function (d) { state.have[d.id] = ''; $('have-' + d.id).value = ''; });
+    persist(); renderAm();
+  });
+
+  function renderAm() {
+    DEFAULTS.forEach(function (d) { $('per-' + d.id).textContent = 'o porție: ' + f(raw(d)) + ' g'; });
+    var out = $('out-am'), have = {}, filled = [];
+    DEFAULTS.forEach(function (d) {
+      var v = num(state.have[d.id]);
+      if (v !== null) { have[d.id] = v; filled.push(d); }
+    });
+    if (!filled.length) { out.innerHTML = '<p class="empty">Scrie cantitatea pentru cel puțin un ingredient ca să vezi câte porții ies.</p>'; return; }
+
+    var N = Infinity;
+    filled.forEach(function (d) { N = Math.min(N, Math.floor(have[d.id] / raw(d))); });
+    var limiting = {};
+    filled.forEach(function (d) { if (Math.floor(have[d.id] / raw(d)) === N) limiting[d.id] = true; });
+    var target = Math.max(N, 1);
+
+    var names = filled.filter(function (d) { return limiting[d.id]; }).map(function (d) { return d.name.toLowerCase(); }).join(' și ');
+    var head;
+    if (N === 0) {
+      head = '<div class="headline"><span class="big">0</span><span class="what">porții întregi</span></div>' +
+        '<p class="why">Nu ajunge pentru o porție întreagă. Mai jos vezi ce lipsește pentru prima porție.</p>';
+    } else {
+      var d0 = filled.filter(function (d) { return limiting[d.id]; })[0];
+      var calc = f(have[d0.id]) + ' g ÷ ' + f(raw(d0)) + ' g = ' + f(have[d0.id] / raw(d0)) + ', adică ' + N;
+      head = '<div class="headline"><span class="big">' + N + '</span><span class="what">' + plural(N) + ' întregi</span></div>' +
+        '<p class="why">Limitat de ' + names + ' (' + calc + ').</p>';
+    }
+
+    var rows = ledger(target, function (d, need) {
+      if (d.sub || d.tot) {
+        return '<tr class="' + (d.sub ? 'sub' : 'tot') + '"><td>' + d.name + '</td><td class="n">—</td><td class="n">' + amt(need) + '</td><td></td></tr>';
+      }
+      var h = have[d.id], c1, c3;
+      if (h === undefined) {
+        c1 = '<span class="num" style="color:var(--muted)">—</span>';
+        c3 = '<span class="good">Ai de cumpărat ' + f(need) + ' g</span>';
+      } else {
+        c1 = f(h) + ' g<small>ajunge pentru ' + f(h / raw(d)) + ' ' + plural(Math.round(h / raw(d))) + '</small>';
+        c3 = h >= need ? 'Rămân ' + f(h - need) + ' g' : '<span class="short">Lipsesc ' + f(need - h) + ' g</span>';
+      }
+      var pill = limiting[d.id] ? '<span class="pill">limitează</span>' : '';
+      var note = d.note ? '<span class="note">' + d.note + '</span>' : '';
+      return '<tr><td>' + d.name + pill + note + '</td><td class="n">' + c1 + '</td><td class="n">' + amt(need) + '</td><td class="n">' + c3 + '</td></tr>';
+    });
+
+    var nextLine = '';
+    if (N >= 1) {
+      var miss = [];
+      filled.forEach(function (d) {
+        var need = raw(d) * (N + 1);
+        if (have[d.id] < need) miss.push(d.name.toLowerCase() + ' +' + f(need - have[d.id]) + ' g');
+      });
+      if (miss.length) nextLine = '<p class="foot">Pentru încă o porție (' + (N + 1) + ') mai ai nevoie de: ' + miss.join(', ') + '.</p>';
+    }
+
+    out.innerHTML = head +
+      '<h2 style="margin-top:18px">Necesar pentru ' + target + ' ' + plural(target) + '</h2>' +
+      '<div class="tblwrap"><table><thead><tr><th>Ingredient</th><th class="n">Am</th><th class="n">Necesar crud</th><th class="n">Diferență</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      cookedBand(target) + nextLine + FOOT;
+  }
+
+  /* ---------- tabs ---------- */
+  function showTab(t) {
+    state.tab = t;
+    var p = t === 'portii';
+    $('tab-portii').setAttribute('aria-selected', String(p));
+    $('tab-am').setAttribute('aria-selected', String(!p));
+    $('panel-portii').hidden = !p;
+    $('panel-am').hidden = p;
+    persist();
+  }
+  $('tab-portii').addEventListener('click', function () { showTab('portii'); });
+  $('tab-am').addEventListener('click', function () { showTab('am'); });
+
+  function renderAll() {
+    $('dbl').setAttribute('aria-checked', String(state.double));
+    renderPortii(); renderAm();
+  }
+  showTab(state.tab);
+  renderAll();
+})();
+</script>
+</body>
+</html>

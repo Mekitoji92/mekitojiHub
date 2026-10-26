@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat ma costa - Mobrick</title>
+    <meta name="description"
+        content="Calculează câte zile și ore trebuie să lucrezi pentru a-ți permite orice obiect pe baza venitului tău net.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="blob-container">
+        <div class="blob"></div>
+        <div class="blob-container">
+            <div class="blob"></div>
+        </div>
+    </div>
+
+    <main class="container">
+        <header>
+            <h1>Calculator <br><span class="gradient-text">Cât mă costă</span></h1>
+            <p>Vizualizează prețul real al achizițiilor tale în ore lucrate.</p>
+        </header>
+
+        <section class="calculator-card">
+            <div class="input-group">
+                <label for="net-income">Venit Lunar Net (Lei)</label>
+                <input type="number" id="net-income" placeholder="3500" min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="work-hours-display">Ore Lucrate în această <label for=""></label>ună</label>
+                <div id="work-hours-display" class="readonly-display">160</div>
+            </div>
+
+            <div class="input-group">
+                <label for="item-price">Preț Obiect (Lei)</label>
+                <input type="number" id="item-price" placeholder="1000" min="0">
+            </div>
+
+            <div id="results" class="results-container hidden">
+                <div class="result-item">
+                    <span class="label">Timp Necesar</span>
+                    <div id="time-display" class="value">0 Zile, 0 Ore</div>
+                </div>
+                <div class="result-item">
+                    <span class="label">Salariu pe Oră</span>
+                    <div id="hourly-wage" class="value">Ron 0.00 / oră</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+                <p class="insight" id="insight-text">Va trebui să lucrezi aproximativ 0% din lună pentru a-ți permite
+                    asta.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Mobrick. Dezvoltat din Pasiune.</p>
+        </footer>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+
+</html>

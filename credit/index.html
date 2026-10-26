@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Rambursare Anticipată - Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .toggle-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            background: var(--glass);
+            padding: 0.25rem;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-option {
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .toggle-option.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-calculate {
+            width: 100%;
+            padding: 1.25rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-calculate:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        /* Results Area */
+        .results-header {
+            margin-bottom: 2rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Specific layout for the 3 smaller cards on the right */
+        .sub-stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            padding: 1.25rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.02);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.35rem;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-value.hero {
+            font-size: 2rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .comparison-table th {
+            text-align: left;
+            padding: 0.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            background: var(--glass);
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+        }
+
+        .comparison-table td:first-child {
+            border-left: 1px solid var(--glass-border);
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            font-weight: 600;
+        }
+
+        .comparison-table td:last-child {
+            border-right: 1px solid var(--glass-border);
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .diff-tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            margin-left: 0.5rem;
+            font-weight: 700;
+        }
+
+        .diff-good {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Configuration Card -->
+        <div class="card">
+            <h1>Parametrii Creditului</h1>
+
+            <div class="input-group">
+                <label>Sold actual credit (RON)</label>
+                <input type="number" id="balance" placeholder="Ex: 250000" value="250000">
+            </div>
+
+            <div class="input-group">
+                <label>Dobânda anuală (%)</label>
+                <input type="number" step="0.01" id="rate" placeholder="Ex: 5.9" value="5.9">
+            </div>
+
+            <div class="input-group">
+                <label>Perioada rămasă (luni)</label>
+                <input type="number" id="months" placeholder="Ex: 240" value="240">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="input-group">
+                    <label>Plată EXTRA (RON)</label>
+                    <input type="number" id="extra" placeholder="Ex: 10000" value="10000">
+                </div>
+                <div class="input-group">
+                    <label>Frecvență Plată</label>
+                    <div class="toggle-group" style="margin-bottom: 0;">
+                        <div class="toggle-option active" data-freq="once" onclick="setFrequency('once')">O dată</div>
+                        <div class="toggle-option" data-freq="annual" onclick="setFrequency('annual')">Anual</div>
+                    </div>
+                </div>
+            </div>
+
+            <label>Strategie Rambursare</label>
+            <div class="toggle-group">
+                <div class="toggle-option active" data-strategy="period" onclick="setStrategy('period')">Scade Perioada
+                </div>
+                <div class="toggle-option" data-strategy="installment" onclick="setStrategy('installment')">Scade Rata
+                </div>
+            </div>
+
+            <button class="btn-calculate" onclick="calculate()">Calculează Salvarea</button>
+        </div>
+
+        <!-- Results Card -->
+        <div id="results" class="card">
+            <div class="results-header">
+                <h1>Analiză Economii</h1>
+                <div class="stat-card"
+                    style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); margin-top: 1rem;">
+                    <span class="stat-label">Total Dobândă Economisită</span>
+                    <div id="totalSavings" class="stat-value hero">0 RON</div>
+                </div>
+            </div>
+
+            <div class="stat-grid">
+                <!-- Column 1 -->
+                <div class="sub-stats">
+                    <div class="stat-card">
+                        <span class="stat-label" id="impactLabel">Timp Economisit</span>
+                        <div id="impactValue" class="stat-value">0 luni</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Noua Perioadă Rămasă</span>
+                        <div id="timeRemaining" class="stat-value">0 luni</div>
+                    </div>
+                </div>
+                <!-- Column 2 (New Monthly Payment - Now Hero) -->
+                <div class="sub-stats">
+                    <div class="stat-card"
+                        style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                        <span class="stat-label">Noua Rată Lunară</span>
+                        <div id="newMonthly" class="stat-value" style="color: #6366f1;">0 RON</div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Indicator</th>
+                        <th>Inițial</th>
+                        <th>După Plată</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Rata Lunară</td>
+                        <td id="compOldRate">0 RON</td>
+                        <td id="compNewRate">0 RON</td>
+                    </tr>
+                    <tr>
+                        <td>Total de Plată</td>
+                        <td id="compOldTotal">0 RON</td>
+                        <td id="compNewTotal">0 RON</td>
+                    </tr>
+                    <tr>
+                        <td>Durată Credit</td>
+                        <td id="compOldMonths">0 luni</td>
+                        <td id="compNewMonths">0 luni</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentStrategy = 'period';
+        let currentFrequency = 'once';
+
+        function setStrategy(strategy) {
+            currentStrategy = strategy;
+            document.querySelectorAll('[data-strategy]').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.strategy === strategy);
+            });
+            calculate();
+        }
+
+        function setFrequency(freq) {
+            currentFrequency = freq;
+            document.querySelectorAll('[data-freq]').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.freq === freq);
+            });
+            calculate();
+        }
+
+        function calculateAnnuity(principal, annualRate, months) {
+            if (months <= 0 || principal <= 0) return 0;
+            const r = annualRate / 100 / 12;
+            if (r === 0) return principal / months;
+            return principal * (r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
+        }
+
+        function calculate() {
+            const P = parseFloat(document.getElementById('balance').value) || 0;
+            const annualRate = parseFloat(document.getElementById('rate').value) || 0;
+            const originalMonths = parseInt(document.getElementById('months').value) || 0;
+            const extraAmount = parseFloat(document.getElementById('extra').value) || 0;
+
+            if (P <= 0 || annualRate <= 0 || originalMonths <= 0) return;
+
+            const r = annualRate / 100 / 12;
+
+            // --- Baseline Calculation ---
+            const originalMonthly = Number(calculateAnnuity(P, annualRate, originalMonths).toFixed(2));
+            let baselineInterest = 0;
+            let tempP = P;
+            for (let i = 0; i < originalMonths; i++) {
+                const interest = Number((tempP * r).toFixed(2));
+                baselineInterest += interest;
+                const payment = Math.min(Number((tempP + interest).toFixed(2)), originalMonthly);
+                tempP = Number((tempP + interest - payment).toFixed(2));
+            }
+            const originalTotalRepayment = Number((P + baselineInterest).toFixed(2));
+
+            // --- Advanced Calculation (with simulation & rounding) ---
+            let currentP = P;
+            let totalInterestPaid = 0;
+            let currentMonthly = originalMonthly;
+            let monthCount = 0;
+
+            // Simulation loop (Standard Bank Amortization)
+            while (currentP > 0.005 && monthCount < 600) {
+                monthCount++;
+
+                // 1. Calculate Interest for the current principal (rounded to 2 decimals like a bank)
+                const interest = Number((currentP * r).toFixed(2));
+                totalInterestPaid += interest;
+
+                // 2. Regular Payment
+                let payment = Math.min(Number((currentP + interest).toFixed(2)), currentMonthly);
+                currentP = Number((currentP + interest - payment).toFixed(2));
+
+                // 3. Extra Payment (Applied after regular payment for the month)
+                let applyExtra = false;
+                if (currentFrequency === 'once' && monthCount === 1) applyExtra = true;
+                // Annual payment typically starts in the first year
+                if (currentFrequency === 'annual' && (monthCount - 1) % 12 === 0) applyExtra = true;
+
+                if (applyExtra && currentP > 0) {
+                    const actualExtra = Math.min(currentP, extraAmount);
+                    currentP = Number((currentP - actualExtra).toFixed(2));
+
+                    // If Strategy is Reduce Rate, recalculate installment for the remaining duration
+                    if (currentStrategy === 'installment') {
+                        const remainingDuration = originalMonths - monthCount;
+                        if (remainingDuration > 0) {
+                            currentMonthly = Number(calculateAnnuity(currentP, annualRate, remainingDuration).toFixed(2));
+                        } else {
+                            currentMonthly = currentP;
+                        }
+                    }
+                }
+
+                if (currentP <= 0) break;
+            }
+
+            const newTotalRepayment = Number((P + totalInterestPaid).toFixed(2));
+            const totalSavings = originalTotalRepayment - newTotalRepayment;
+
+            // --- UI Updates ---
+            document.getElementById('totalSavings').innerText = `${Math.round(totalSavings).toLocaleString('ro-RO')} RON`;
+            document.getElementById('newMonthly').innerText = `${Math.round(currentMonthly).toLocaleString('ro-RO')} RON`;
+
+            document.getElementById('compOldRate').innerText = `${Math.round(originalMonthly).toLocaleString('ro-RO')} RON`;
+            document.getElementById('compNewRate').innerHTML = `${Math.round(currentMonthly).toLocaleString('ro-RO')} RON ${currentMonthly < originalMonthly - 1 ? '<span class="diff-tag diff-good">▼</span>' : ''}`;
+
+            document.getElementById('compOldTotal').innerText = `${Math.round(originalTotalRepayment).toLocaleString('ro-RO')} RON`;
+            document.getElementById('compNewTotal').innerText = `${Math.round(newTotalRepayment).toLocaleString('ro-RO')} RON`;
+
+            document.getElementById('compOldMonths').innerText = `${originalMonths} luni`;
+            document.getElementById('compNewMonths').innerHTML = `${monthCount} luni ${monthCount < originalMonths ? '<span class="diff-tag diff-good">▼</span>' : ''}`;
+
+            // Time Remaining Card
+            document.getElementById('timeRemaining').innerText = monthCount >= 12
+                ? `${(monthCount / 12).toFixed(1)} ani`
+                : `${monthCount} luni`;
+
+            if (currentStrategy === 'period') {
+                document.getElementById('impactLabel').innerText = "Timp Economisit";
+                const monthsSaved = originalMonths - monthCount;
+                document.getElementById('impactValue').innerText = monthsSaved >= 12
+                    ? `${(monthsSaved / 12).toFixed(1)} ani`
+                    : `${Math.round(monthsSaved)} luni`;
+            } else {
+                document.getElementById('impactLabel').innerText = "Rată Scăzută Cu";
+                document.getElementById('impactValue').innerText = `${Math.round(originalMonthly - currentMonthly)} RON`;
+            }
+        }
+
+        calculate();
+    </script>
+</body>
+
+</html>
