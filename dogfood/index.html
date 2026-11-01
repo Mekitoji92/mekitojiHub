@@ -135,6 +135,10 @@ td small, .kg { display: block; color: var(--muted); font-size: 12px; font-weigh
 td .note { color: var(--muted); font-size: 12px; display: block; }
 tr.sub td { background: var(--accent-soft); font-weight: 600; }
 tr.tot td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--fg); }
+#panel-portii td.n, #panel-portii th.n { white-space: nowrap; }
+#panel-portii td:first-child, #panel-portii th:first-child { position: sticky; left: 0; background: var(--surface); }
+#panel-portii tr.sub td:first-child { background: var(--accent-soft); }
+#panel-portii tr.cookrow td:first-child { background: var(--accent); }
 tr.cookrow td { background: var(--accent); color: var(--accent-fg); font-weight: 700; border-bottom: 0; }
 tr.cookrow td small { color: inherit; opacity: .85; }
 tr.cookrow td:first-child { border-radius: 8px 0 0 8px; }
@@ -203,6 +207,11 @@ body{margin:0}
       <h2 id="p-title">De cumpărat</h2>
       <div id="out-portii"></div>
     </div>
+    <div class="box">
+      <h2>Cât mănâncă câinele</h2>
+      <p class="lead" style="margin:6px 0 0">Hrană gătită, gata de dat în castron, pentru aceleași zile alese mai sus.</p>
+      <div id="out-eat"></div>
+    </div>
   </section>
 
   <section class="panel" id="panel-am" role="tabpanel" aria-labelledby="tab-am" hidden>
@@ -242,6 +251,7 @@ body{margin:0}
   var KEY = 'calc-hrana-caini-v1';
   var VER = 3; // v3: carnea crudă mărită (pulpă 70, cotlet 60); rețetele salvate înainte nu se mai încarcă
   var DEFAULT_DAYS = [1, 2, 5];
+  var MEALS = 2; // fișa: cantitatea zilnică se împarte în 2 mese
   // days is not persisted: a fresh visit starts with nothing selected and falls back to DEFAULT_DAYS
   var state = { tab: 'portii', days: [], double: false, have: { pulpa: '500', cotlet: '', cartofi: '', mazare: '' }, recipe: {} };
   DEFAULTS.forEach(function (d) { state.recipe[d.id] = { raw: d.raw, cooked: d.cooked }; });
@@ -392,6 +402,18 @@ body{margin:0}
     var dbl = state.double ? '<p class="foot">X2 Doggos activ: toate cantitățile sunt dublate (' + f(cook) + ' g gătit pe zi, ' + f(all) + ' g crud pe zi).</p>' : '';
     $('p-title').textContent = 'De cumpărat' + (state.double ? ' (X2 Doggos)' : '');
     $('out-portii').innerHTML = '<div class="tblwrap"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>' + dbl + warn + FOOT;
+
+    // what actually goes in the bowl: cooked amounts, same day columns
+    var eatRows = '';
+    DEFAULTS.forEach(function (d) {
+      eatRows += '<tr><td>' + d.name + '</td>' + cells(cooked(d)) + '</tr>';
+    });
+    eatRows += '<tr class="tot"><td>Total gătit</td>' + cells(cook) + '</tr>';
+    var dogs = mult(), perDay = cook / dogs, perMeal = perDay / MEALS;
+    var who = dogs > 1 ? 'Pentru fiecare dintre cei ' + dogs + ' câini' : 'Pentru câine';
+    $('out-eat').innerHTML = '<div class="tblwrap"><table><thead>' + head + '</thead><tbody>' + eatRows + '</tbody></table></div>' +
+      '<div class="cooked"><span class="t">' + who + ', pe zi</span><span class="v">' + f(perDay) + ' g</span>' +
+      '<span class="d">' + MEALS + ' mese pe zi, câte ' + f(perMeal) + ' g la fiecare masă</span></div>';
   }
 
   /* ---------- tab 2 ---------- */
