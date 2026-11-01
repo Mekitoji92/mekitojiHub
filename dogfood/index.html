@@ -404,9 +404,11 @@ body{margin:0}
     $('out-portii').innerHTML = '<div class="tblwrap"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>' + dbl + warn + FOOT;
 
     // what actually goes in the bowl: cooked amounts, same day columns
-    var eatRows = '';
+    var eatRows = '', meatCooked = 0;
     DEFAULTS.forEach(function (d) {
+      if (d.meat) meatCooked += cooked(d);
       eatRows += '<tr><td>' + d.name + '</td>' + cells(cooked(d)) + '</tr>';
+      if (d.id === 'cotlet') eatRows += '<tr class="sub"><td>Total carne gătită</td>' + cells(meatCooked) + '</tr>';
     });
     eatRows += '<tr class="tot"><td>Total gătit</td>' + cells(cook) + '</tr>';
     var dogs = mult(), perDay = cook / dogs, perMeal = perDay / MEALS;
