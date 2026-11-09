@@ -234,7 +234,7 @@ body{box-sizing:border-box;padding-top:calc(64px + env(safe-area-inset-top))}
 
   <details class="box recipe" id="recipe">
     <summary>Rețeta unei porții</summary>
-    <p class="lead">Valorile gătite sunt din fișa dietei. Carnea crudă e mărită față de fișă (pulpă 70 g în loc de 60 g, cotlet 60 g în loc de 48 g), pentru că la gătit se pierde mai multă apă. Le poți schimba dacă medicul veterinar modifică rețeta.</p>
+    <p class="lead">Valorile gătite sunt din fișa dietei. Carnea crudă e mărită față de fișă (pulpă 65 g în loc de 60 g, cotlet 52 g în loc de 48 g), pentru că la gătit se pierde mai multă apă. Le poți schimba dacă medicul veterinar modifică rețeta.</p>
     <div class="tblwrap">
       <table class="rtable">
         <thead><tr><th>Ingredient</th><th class="n">Crud (g)</th><th class="n">Gătit (g)</th></tr></thead>
@@ -249,14 +249,14 @@ body{box-sizing:border-box;padding-top:calc(64px + env(safe-area-inset-top))}
 (function () {
   var DEFAULTS = [
     // Fișa veterinară zice 60 g și 48 g crud, dar la gătit a ieșit prea puțin (testat pe 5 zile, X2):
-    // carnea crudă e mărită (pulpă 70 g, cotlet 60 g) ca să iasă cantitatea gătită din fișă (55 g și 35 g).
-    { id: 'pulpa',   name: 'Pulpă de porc',  note: 'fără piele',    raw: 70,  cooked: 55,  meat: true },
-    { id: 'cotlet',  name: 'Cotlet de porc', note: 'fără grăsime',  raw: 60,  cooked: 35,  meat: true },
+    // carnea crudă e mărită (pulpă 65 g, cotlet 52 g) ca să iasă cantitatea gătită din fișă (55 g și 35 g).
+    { id: 'pulpa',   name: 'Pulpă de porc',  note: 'fără piele',    raw: 65,  cooked: 55,  meat: true },
+    { id: 'cotlet',  name: 'Cotlet de porc', note: 'fără grăsime',  raw: 52,  cooked: 35,  meat: true },
     { id: 'cartofi', name: 'Cartofi albi',   note: 'curățați de coajă', raw: 410, cooked: 410 },
     { id: 'mazare',  name: 'Mazăre verde',   note: '',              raw: 50,  cooked: 50 }
   ];
   var KEY = 'calc-hrana-caini-v1';
-  var VER = 3; // v3: carnea crudă mărită (pulpă 70, cotlet 60); rețetele salvate înainte nu se mai încarcă
+  var VER = 4; // v4: carnea crudă mărită (pulpă 65, cotlet 52); rețetele salvate înainte nu se mai încarcă
   var DEFAULT_DAYS = [1, 2, 5];
   var MEALS = 2; // fișa: cantitatea zilnică se împarte în 2 mese
   // days is not persisted: a fresh visit starts with nothing selected and falls back to DEFAULT_DAYS
